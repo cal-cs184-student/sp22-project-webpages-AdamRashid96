@@ -33,27 +33,59 @@
 
 		<p>This achieves a better result than testing every pixel of the triangle's bounding box by only visiting pixels that are inside the triangle. Pixels outside the triangle are never tested.</p>
 
-		<p>Sample rate 1.</p>
-		<img class="img-responsive img-fluid center-block" src="images/Samplerate1.png" width="35%"/>
+		<p>Sample rate 1:</p>
+		<img class="img-responsive img-fluid center-block" src="images/SampleRate1.png" width="35%"/>
 		<br>
 			
 		<p><b>Extra Credit: Performance vs. Bounding Box Approach</b></p>
 
-		<ul>
+		<table class="table">
+		  <thead>
+		    <tr>
+		      <th scope="col"> </th>
+		      <th scope="col">Incremental Traversal</th>
+		      <th scope="col">Bounding Box</th>
+		      <th scope="col">Speedup</th>
+		    </tr>
+		  </thead>
+		  <tbody>
+		    <tr>
+		      <td> Run 1 </td>
+			  	<td> 5946 </td>
+			    <td> 42082 </td>
+			    <td> 7.1x </td>
+		    </tr>
+		    <tr>
+		      <td> Run 2 </td>
+			    <td> 5681 </td>
+			    <td> 41886 </td>
+			    <td> 7.4x </td>
+		    </tr>
+		    <tr>
+		      <td> Run 3 </td>
+			    <td> 5412 </td>
+			    <td> 41928 </td>
+			    <td> 7.7x </td>
+		    </tr>
+		    <tr>
+		       <td> Average </td>
+			    <td> 5680 </td>
+			    <td> 41965 </td>
+			    <td> 7.4x </td>
+		    </tr>
+		  </tbody>
+		</table>
+
+		<!-- <ul>
 		  <li>|--| Incremental Traversal | Bounding Box| Speedup |</li>
 		  <li>| Run 1 | 5946 | 42082 | 7.1x |</li>
 		  <li>| Run 2 | 5681 | 41886 | 7.4x | </li>
 		  <li>| Run 3 | 5412 | 41928 | 7.7x | </li>
 		  <li>| Average | 5680 | 41965 | 7.4x |</li>
-		</ul>
+		</ul> -->
 
 		<p>As can be seen by the stats from 3 different runs of each approach, Incremental Traversal consistently outperforms the Bounding Box approach by a speedup of at least 7 times.</p>
 
-		<!-- <p>|--| Incremental Traversal | Bounding Box| Speedup | <br>
-			| Run 1 | 5946 | 42082 | 7.1x | <br>
-			| Run 2 | 5681 | 41886 | 7.4x | <br>
-			| Run 3 | 5412 | 41928 | 7.7x | <br>
-			| Average | 5680 | 41965 | 7.4x | </p> -->
 
 	<h2 align="middle">Task 2: Antialiasing by Supersampling</h2>
 		<p>Super sampling is useful because it approximates the effect of filtering the image with a 1-pixel box filter. This reduces the aliasing, resulting in a clearer and more visually pleasing image.</p>
@@ -62,14 +94,14 @@
 
 		<p>As can be seen in the images of different sample rates, the higher the sample rate, the smoother the edges of the triangles look. Specifically, the left end of the red triangle (which is shown in the inspector) looks much better. The issues in the screenshot of a sample rate of 1 are caused because as the triangle gets thinner, it becomes easier for it to avoid touching the center point of any pixels, the points which are actually being sampled. When we increase the sample rate, the number of pixels sampled effectively increases, decreasing the chances that an area of this triangle could entirely avoid touching any of the sampled points.</p>
 
-		<p>Sample rate 1.</p>
-		<img class="img-responsive img-fluid center-block" src="images/Samplerate1.png" width="40%"/>
+		<p>Sample rate 1:</p>
+		<img class="img-responsive img-fluid center-block" src="images/SampleRate1.png" width="40%"/>
 		<br>
-		<p>Sample rate 4.</p>
-		<img class="img-responsive img-fluid center-block" src="images/Samplerate4.png" width="40%"/>
+		<p>Sample rate 4:</p>
+		<img class="img-responsive img-fluid center-block" src="images/SampleRate4.png" width="40%"/>
 		<br>
-		<p>Sample rate 16.</p>
-		<img class="img-responsive img-fluid center-block" src="images/Samplerate16.png" width="40%"/>
+		<p>Sample rate 16:</p>
+		<img class="img-responsive img-fluid center-block" src="images/SampleRate16.png" width="40%"/>
 		<br>
 
 
@@ -84,34 +116,34 @@
 		<p>Barycentric coordinates are a specialized coordinate system to define locations within a triangle. Points in this coordinate system can be considered as triple of weights, alpha, beta, and gamma, of each vertex of the triangle where the sum of the weights is always one. The alpha, beta, and gamma values are very useful for interpolating colors and textures onto the triangle. For instance, shown below is a triangle with one red, one green, and one blue vertex and using barycentric interpolation the rest of the triangle can be filled with a smooth gradient by interpolating the R, G, and B values of the verticies.</p>
 
 		<br>
-		<p>Triangle with one red, green, and blue vertex and interpolated gradient in the center.</p>
+		<p>Triangle with one red, green, and blue vertex and interpolated gradient in the center:</p>
 		<img class="img-responsive img-fluid center-block" src="images/task4-1.png" width="40%"/>	
 	
-		<p>Color Wheel - With default viewing parameters and sample rate 1.</p>
+		<p>Color Wheel - With default viewing parameters and sample rate 1:</p>
 		<img class="img-responsive img-fluid center-block" src="images/task4-2.png" width="40%"/>
 		<br>
 
 	<h2 align="middle">Task 5: Pixel sampling for texture mapping</h2>
-		<p>First, we did the steps we took for rasterizing a regular triangle. We scaled the positions of the verticies by the square root of the samplke rate and then swapped the points such that they were ordered by lowest y value. Then we implemented <code>RasterizerImp::draw_textured_line</code> which would draw a line of the triangle by taking in a left x_limit, a right x_limit and a height, and looping through every point between the limits. We would transform the xy coordinates into uv coordinates by converting the xy coordinates into barycentric coordinates and then interpolating the uv coordinates. Finally the uv coordinates were used to retrieve the texture's color.</p>
+		<p>First, we did the steps we took for rasterizing a regular triangle. We scaled the positions of the verticies by the square root of the sample rate and then swapped the points such that they were ordered by lowest y value. Then we implemented <code>RasterizerImp::draw_textured_line</code> which would draw a line of the triangle by taking in a left x_limit, a right x_limit and a height, and looping through every point between the limits. We would transform the xy coordinates into uv coordinates by converting the xy coordinates into barycentric coordinates and then interpolating the uv coordinates. Finally the uv coordinates were used to retrieve the texture's color.</p>
 
-		<p>Then, we implemented <code>Texture::sample_nearest(...)</code> and <code>Texture::sample_bilinear(...)</code>. For <code>sample_nearest(...)</code> we simply round the uv coordinates and returned the texel at the rounded uv coordinates. For <code>sample_bilinear(...)</code> we returned the linearly interpolated colors of the four texels surrounding uv. We did this by lineraly interpolation the colors for each pair of texels horizontaly. Then we linearly interpolate the two interpolated colors, and then return that color.</p>
+		<p>Then, we implemented <code>Texture::sample_nearest(...)</code> and <code>Texture::sample_bilinear(...)</code>. For <code>sample_nearest(...)</code> we simply round the uv coordinates and returned the texel at the rounded uv coordinates. For <code>sample_bilinear(...)</code> we returned the linearly interpolated colors of the four texels surrounding uv. We did this by linearly interpolating the colors for each pair of texels horizontaly. Then we linearly interpolate the two interpolated colors, and return that color.</p>
 
 		<p>In general, bilinear pixel interpolation sampling does a better job than nearest pixel sampling in providing a smoother, anti-aliased image. The more magnified (multiple pixels per texel) the image becomes, the more bilinear interpolation out performs nearest pixel by having better anti-aliasing. When the image is zoomed out very far (1 pixel per many texels) there is much less of a difference between nearest pixel and bilinear methods.</p>
 		<br>
 		
-		<p>Nearest pixel at 1 sample per pixel. Note the jaggies on the parrot's beak.</p>
+		<p>Nearest pixel at 1 sample per pixel. Note the jaggies on the parrot's beak:</p>
 		<img class="img-responsive img-fluid center-block" src="images/task5-1.png" width="40%"/>
 		<br>
 	
-		<p>Bilinear at 1 sample per pixel. The jaggies are mostly gone on the parrot's beak.</p>
+		<p>Bilinear at 1 sample per pixel. The jaggies are mostly gone on the parrot's beak:</p>
 		<img class="img-responsive img-fluid center-block" src="images/task5-2.png" width="40%"/>
 		<br>
 	
-		<p>Nearest pixel at 16 samples per pixel. The jaggies are mostly gone on the parrot's beak, but the detail on the beak has also gone.</p>
+		<p>Nearest pixel at 16 samples per pixel. The jaggies are mostly gone on the parrot's beak, but the detail on the beak has also gone:</p>
 		<img class="img-responsive img-fluid center-block" src="images/task5-4.png" width="40%"/>
 		<br>
 	
-		<p>Bilinear at 16 sample per pixel. The jaggies are completely gone, and is slightly sharper than bilinear at 1 sample per pixel.</p>
+		<p>Bilinear at 16 sample per pixel. The jaggies are completely gone, and is slightly sharper than bilinear at 1 sample per pixel:</p>
 		<img class="img-responsive img-fluid center-block" src="images/task5-3.png" width="40%"/>
 		<br>
 
@@ -119,7 +151,7 @@
 		<p>Mipmaps for textures are sets of a texture where each level of the mipmap is progressively a lower resolution of the previous. Using these mipmap levels we can perform level sampling of the texture where we reduce aliasing artifacts by calculating different mipmap levels for different parts of the image. A higher-resolution mipmap level is used for more detailed objects, such as those close to the camera, and lower-resolution images are used for objects farther away.</p>
 
 
-		<p>When implementing level sampling, we modified <code>draw_textured_line</code> to fill in the SampleParams struct and passed it into tex.sample to get the color to fill the pixel with. In texture.cpp, we implemented <code>Texture::get_level</code> to calculate the mipmap level for <em>SampleParams</em>. To do that, we followed the steps of calculating the uv barycentric coordinates of (x,y)(x,y), (x+1,y)(x+1,y), and (x,y+1)(x,y+1); then calculating the difference vectors; and finally scalling the difference vectors accordingly by the width and height of the full-resolution texture image. When <code>L_NEAREST</code> is selected, <code>Texture::get_level()</code> returns the level rounded otherwise if <code>L_LINEAR</code> is selected it returns the float level. Finally, <code>Texture::sample()</code> will calculate the colors for the given level and a level above and the linearly interpolate the colors using the level to calculate the final color of the pixe.</p>
+		<p>When implementing level sampling, we modified <code>draw_textured_line</code> to fill in the SampleParams struct and passed it into <code>Texture::sample</code> to get the color to fill the pixel with. In texture.cpp, we implemented <code>Texture::get_level</code> to calculate the mipmap level for <em>SampleParams</em>. To do that, we followed the steps of calculating the uv barycentric coordinates of (x,y), (x+1,y), and (x,y+1); then calculating the difference vectors; and finally scalling the difference vectors accordingly by the width and height of the full-resolution texture image. When <code>L_NEAREST</code> is selected, <code>Texture::get_level()</code> returns the level rounded otherwise if <code>L_LINEAR</code> is selected it returns the float level. Finally, <code>Texture::sample()</code> will calculate the colors for the given level and a level above and the linearly interpolate the colors using the level to calculate the final color of the pixe.</p>
 
 		<p>Pixel Sampling - The fastest of the three sampling techniques as well as the least memory intensive method. However, it has the worst antialiasing power and is very susceptible to jaggies and the moire effect.</p>
 
@@ -127,23 +159,23 @@
 
 		<p>Pixel Super Sampling - The slowest and most costly of the three sampling techniques because it requires multiple samples per pixel. Not as memory intensive as level sampling because we interpolate the colors as we sample each pixel. It has the best antialiasing power because we are able to tune the precision in exchange for compute cost.</p>
 		
-		<p>Nearest pixel and 0 level at 1 sample per pixel.</p>
+		<p>Nearest pixel and 0 level at 1 sample per pixel:</p>
 		<img class="img-responsive img-fluid center-block" src="images/task6-1.png" width="40%"/>
 		<br>
 	
-		<p>Bilinear and 0 level at 1 sample per pixel.</p>
+		<p>Bilinear and 0 level at 1 sample per pixel:</p>
 		<img class="img-responsive img-fluid center-block" src="images/task6-2.png" width="40%"/>
 		<br>	
 	
-		<p>Nearest pixel and nearest level at 1 sample per pixel. </p>
+		<p>Nearest pixel and nearest level at 1 sample per pixel: </p>
 		<img class="img-responsive img-fluid center-block" src="images/task6-3.png" width="40%"/>
 		<br>	
 	
-		<p>Bilinear and nearest level at 1 sample per pixel.</p>
+		<p>Bilinear and nearest level at 1 sample per pixel:</p>
 		<img class="img-responsive img-fluid center-block" src="images/task6-4.png" width="40%"/>
 		<br>	
 	
-		<p>https://cal-cs184-student.github.io/sp22-project-webpages-AdamRashid96/</p>
+		<a href ="https://cal-cs184-student.github.io/sp22-project-webpages-AdamRashid96/">https://cal-cs184-student.github.io/sp22-project-webpages-AdamRashid96/</a>
 </div>
 </div>
 
