@@ -24,7 +24,7 @@
 		<p>For this assignment, we implemented basic creation of Bezier surfaces with de Casteljau's algorithim in order to render editable meshes. Then, utilizing the halfedge data structure we implemented edge flipping and edge splitting for the meshes to be finally used for the loop subdivision algorithim for mesh upsampling.</p>
 	<br>
 	<h2 align="middle">Task 1: Bezier curves with 1D de Casteljau subdivision</h2>
-		<p>De Casteljau's Algorithm is a recursive method for evaluating Bezier curves, which are defined by two endpoints and any number of control points. De Casteljau's Algorithm first linearly interpolates between each pair of points on every intermediate edge and then places a new control point on each of these edge. This process is repeated recursively using the newly-placed control points as the new edges to interpolate between, until there is one point left that is guaranteed to be on the bezier curve. We implemented the evaluate step of De Casteljau's Algorithm by looping through all the controll points given and linearly interpolating each pair of points to create a new list of n-1 controll points. This evaluate step is recursively repeated till 1 point is returned to create the bezier curve.</p>
+		<p>De Casteljau's Algorithm is a recursive method for evaluating Bezier curves, which are defined by two endpoints and any number of control points. De Casteljau's Algorithm first linearly interpolates between each pair of points on every intermediate edge and then places a new control point on each of these edge. This process is repeated recursively using the newly-placed control points as the new edges to interpolate between, until there is one point left that is guaranteed to be on the bezier curve. We implemented the evaluate step of De Casteljau's Algorithm by looping through all the control points given and linearly interpolating each pair of points to create a new list of n-1 control points. This evaluate step is recursively repeated till 1 point is returned to create the bezier curve.</p>
 
 		<div align="middle">
 		  <table style="width=100%">
@@ -134,7 +134,7 @@
 
 
 	<h2 align="middle">Task 5: Half-edge split</h2>
-		<p>To implement this method, We first gathered all the relevant pointers to the haledges, edges, faces, and vertices. We checked whether the edge or its two neighboring faces are a boundary, returning immediately if they are. Next, we created the 6 halfedges,1 vertex, and 1 edge that were created when splitting. We also reassigned all of the corresponing pointers that needed to be changed according to the edge split and returned the newley created vertex. 
+		<p>To implement this method, We first gathered all the relevant pointers to the hafedges, edges, faces, and vertices. We checked whether the edge or its two neighboring faces are a boundary, returning immediately if they are. Next, we created the vertex, edge, and 6 halfedges that are formed when splitting. We also reassigned all of the corresponding pointers that needed to be changed according to the edge split and returned the newley created vertex. 
 
 		We didn't really run into errors on this code because we drew out a diagram of all the reassignments and creations that needed to be done before coding it out.</p>
 
@@ -231,7 +231,7 @@
 		<img class="img-responsive img-fluid center-block" src="images/task6-3.png" width="40%"/>
 		<br>
 	
-		<a href ="https://cal-cs184-student.github.io/sp22-project-webpages-AdamRashid96/">https://cal-cs184-student.github.io/sp22-project-webpages-AdamRashid96/</a>
+		<a href ="https://cal-cs184-student.github.io/sp22-project-webpages-AdamRashid96/">https://cal-cs184-student.github.io/sp22-project-webpages-AdamRashid96/proj2/index.html</a>
 </div>
 </div>
 
