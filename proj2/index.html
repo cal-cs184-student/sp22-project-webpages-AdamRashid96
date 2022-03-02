@@ -1,7 +1,243 @@
-<html>
-	<head>
-	</head>
-	<body>
-		Project 2 here
-	</body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" crossorigin="anonymous">
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS"crossorigin="anonymous"></script>
+	<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML"></script>
+	<title>CS184 project 2</title>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+</head>
+
+<body>
+<div class="container">
+<br/>
+
+<h1 align="middle">MeshEdit</h1>
+<br>
+
+
+	<div class="padded">
+	<h2 align="middle">Overview</h2>
+		<p>For this assignment, we implemented basic creation of Bezier surfaces with de Casteljau's algorithim in order to render editable meshes. Then, utilizing the halfedge data structure we implemented edge flipping and edge splitting for the meshes to be finally used for the loop subdivision algorithim for mesh upsampling.</p>
+	<br>
+	<h2 align="middle">Task 1: Bezier curves with 1D de Casteljau subdivision</h2>
+		<p>De Casteljau's Algorithm is a recursive method for evaluating Bezier curves, which are defined by two endpoints and any number of control points. De Casteljau's Algorithm first linearly interpolates between each pair of points on every intermediate edge and then places a new control point on each of these edge. This process is repeated recursively using the newly-placed control points as the new edges to interpolate between, until there is one point left that is guaranteed to be on the bezier curve. We implemented the evaluate step of De Casteljau's Algorithm by looping through all the controll points given and linearly interpolating each pair of points to create a new list of n-1 controll points. This evaluate step is recursively repeated till 1 point is returned to create the bezier curve.</p>
+
+		<div align="middle">
+		  <table style="width=100%">
+		    <tr>
+		      <td>
+		      	<figcaption align="middle">Step 1</figcaption>
+		        <img src="images/task1-1.png" align="middle" width="400px"/>
+		      </td>
+		      <td>
+		      	<figcaption align="middle">Step 2</figcaption>
+		        <img src="images/task1-2.png" align="middle" width="400px"/>
+		      </td>
+		    </tr>
+		    <br>
+		    <tr>
+		      <td>
+		      	<figcaption align="middle">Step 3</figcaption>
+		        <img src="images/task1-3.png" align="middle" width="400px"/>
+		      </td>
+		      <td>
+		        <figcaption align="middle">Step 4</figcaption>
+		        <img src="images/task1-4.png" align="middle" width="400px"/>
+		      </td>
+		    </tr>
+		    <tr>
+		      <td>
+		        <figcaption align="middle">Step 5</figcaption>
+		        <img src="images/task1-5.png" align="middle" width="400px"/>
+		      </td>
+		      <td>
+		        <figcaption align="middle">Step 6</figcaption>
+		        <img src="images/task1-6.png" align="middle" width="400px"/>
+		      </td>
+		    </tr>
+		  </table>
+		</div>
+
+		<br>
+		<div align="middle">
+		<p>Changed Curve</p>
+		</div>
+		<img class="img-responsive img-fluid center-block" src="images/task1-7.png" width="40%"/>
+
+	<h2 align="middle">Task 2: Bezier Surfaces with Separable 1D de Casteljau</h2>
+
+		<p>The de Casteljau's algorithm extends pretty elegantly to Bezier surfaces. The main idea is to treat every line in a specific dimension as a Bezier curve of its own.
+			The 1D de Casteljau algorithm is used to evaluate all of this curves using the corresponding dimension coordinate of the sample point.
+			This yields a set of points, which can also be treated as a Bezier curve.
+			The evaluation of this curve using the other sample coordinate will yield the sampled value, a point on the bezier surface.
+		</p>
+		<p><code>bez/teapot.bez</code>:</p>
+		<img class="img-responsive img-fluid center-block" src="images/task2.png" width="40%"/>
+		<br>
+
+	<h2 align="middle">Task 3: Average normals for half-edge meshes</h2>
+
+		<p>For this task, we implemented the function that computes a vertex's weighted average by taking the area-weighted average of the scaled normals of adjacent faces. We traverse the given vertex's neighboring verticies that define the neighboring faces by using the halfedge's next(), twin(), and vertex() functions. Once we have the faces, we compute the scaled normal vector of the face by taking the cross product of two edges of the triangle and scale it by the area of the triangle.</p>
+
+		<div align="middle">
+		  <table style="width=100%">
+		    <tr>
+		      <td>
+		        <img src="images/task3-1.png" align="middle" width="400px"/>
+		        <figcaption align="middle">Flat Shading</figcaption>
+		      </td>
+		      <td>
+		        <img src="images/task3-2.png" align="middle" width="400px"/>
+		        <figcaption align="middle">Phong Shading</figcaption>
+		      </td>
+		    </tr>
+		    <br>
+		    <tr>
+		      <td>
+		        <img src="images/task3-3.png" align="middle" width="400px"/>
+		        <figcaption align="middle">Flat Shading</figcaption>
+		      </td>
+		      <td>
+		        <img src="images/task3-4.png" align="middle" width="400px"/>
+		        <figcaption align="middle">Phong Shading</figcaption>
+		      </td>
+		    </tr>
+		  </table>
+		</div>
+
+		<br>
+		<p>One bug we came across was that the normals were facing the incorrect direction which ending up creating an interesting shading effect shown below.</p>
+		<br>
+
+		<img class="img-responsive img-fluid center-block" src="images/task3-5.png" width="40%"/>
+
+	<h2 align="middle">Task 4: Edge Flip</h2>
+		<p>
+			We started by labeling all the elements on an illustration of an edge flip for both before and after the flip.
+			We then moved on to carefully writing down the properties of each element after the flip.
+			The main things that needed to be changed were the next values of every Half Edge, the Faces of a numer of Half Edges, and to ensure that the Vertices and Faces had correct Half Edge references.
+			After this, the implementation was as simple as turning the assignments into C++ code.
+			Luckily, the implementation of this task was straightforward and didn't need much debugging.
+		</p>
+
+		<br>
+		<p>Before the edge flip:</p>
+		<img class="img-responsive img-fluid center-block" src="images/task4-1.png" width="40%"/>	
+	
+		<p>After the edge flip:</p>
+		<img class="img-responsive img-fluid center-block" src="images/task4-2.png" width="40%"/>
+		<br>
+
+
+	<h2 align="middle">Task 5: Half-edge split</h2>
+		<p>To implement this method, We first gathered all the relevant pointers to the haledges, edges, faces, and vertices. We checked whether the edge or its two neighboring faces are a boundary, returning immediately if they are. Next, we created the 6 halfedges,1 vertex, and 1 edge that were created when splitting. We also reassigned all of the corresponing pointers that needed to be changed according to the edge split and returned the newley created vertex. 
+
+		We didn't really run into errors on this code because we drew out a diagram of all the reassignments and creations that needed to be done before coding it out.</p>
+
+		<div align="middle">
+		    <table style="width=100%">
+		    <tr>
+		      <td>
+		        <img src="images/task5-1.png" align="middle" width="400px"/>
+		        <figcaption align="middle">Original Cow</figcaption>
+		      </td>
+		      <td>
+		        <img src="images/task5-2.png" align="middle" width="400px"/>
+		        <figcaption align="middle">Cow after some splits</figcaption>
+		      </td>
+		    </tr>
+			</table>
+		</div>
+
+		<br>
+
+		<div align="middle">
+		    <table style="width=100%">
+		    <tr>
+		      <td>
+		        <img src="images/task5-3.png" align="middle" width="400px"/>
+		        <figcaption align="middle">Original Beetle</figcaption>
+		      </td>
+		      <td>
+		        <img src="images/task5-4.png" align="middle" width="400px"/>
+		        <figcaption align="middle">Beetle after some splits and flips</figcaption>
+		      </td>
+		    </tr>
+			</table>
+		</div>
+
+	<h2 align="middle">Task 6: Loop Subdivision for Mesh Upsampling</h2>
+		<p>
+			Our implementation mostly follows the suggested structure in <code>MeshResampler::upsample</code>.
+			First, we calculate the new positions for every point.
+			We do this by iterating through every edge and setting <code>edge->newPosition</code> to the weighted sum of it's neighbor vertices.
+			This finds the positions of all the vertices that will be created later.
+			To find the new positions of all existing points, we iterate through each vertex and use the neighbor traversal algorithm to get a sum of all neighboring vertex positions.
+			This sum is correctly weighted, added with the original vertex position, and assigned to <code>vertex->newPosition</code>.
+		</p>
+		<p>
+			After computing the positions, the actual subdivision is done, starting with splitting every edge.
+			Since we're both iterating through every edge and creating new edges using <code>HalfedgeMesh::splitEdge</code>, we first make a local array to list every edge that exists before the split.
+			This way the list we iterate is not appended to.
+			We attempted to simply not split edges that are new, however every split results in 1 new edge that is not considered new for the pupose of the flip process later, complicating what the meaning of <code>edge->isNew</code> is.
+			We decided to not mark these edges as new, necessitating the new array so that we avoid an infinite loop.
+			After the edge has been split, we immediately assign the position to the newly created vertex from the value stored in <code>edge->newPosition</code>.
+		</p>
+
+		<p>
+			Once each edge has been split, each new edge needs to be flipped according to the algorithm. This was pretty straightforward.
+			Here we also unmark every new edge, so that further subdivisions can be done.
+			Finally, every old vertex has its new position applied from <code>vertex->newPosition</code>, and every new vertex is unmarked.
+		</p>
+
+		<br>
+		<p>
+			Sharp edges and corners are smoothed out after subdivision.
+			This is because subdivision attempts to make the surface continuous, and sharp edges represent discontinuity on the original mesh.
+			This effect can not be completely removed by simply modifying the mesh, but can be decreased by using edge splits to add more geometry near the sharp edge.
+			By adding more geometry, the subdivision algorithm will weight the new position of points along the sharp edge with points closer to that edge, resulting in less variation from the original position.
+		</p>
+
+
+		<p>The cube with geometry added near a sharp edge:</p>
+		<img class="img-responsive img-fluid center-block" src="images/task6-4.png" width="40%"/>
+		<br>
+	
+		<p>The previous cube at subdivision level 1:</p>
+		<img class="img-responsive img-fluid center-block" src="images/task6-5.png" width="40%"/>
+		<br>
+
+		<br>
+		<p>
+			The <code>cube.dae</code> model has some built in asymmetry because of the inner edge on each of the 6 sides of the cube.
+			While the model appears to be symmetric, the asymmetry of the underlying geometry causes asymmetry in the subdivision.
+			This is because opposite points in the mesh will have different neighboring geometry, causing the subdivision algorithm to compute very different positions for those points.
+			If each of these inner edges are split, the cube model becomes symmetric and ensures that subdivisions will also be symmetric.
+		</p>
+
+		<p>The cube with each inner edge split:</p>
+		<img class="img-responsive img-fluid center-block" src="images/task6-1.png" width="40%"/>
+		<br>
+	
+		<p>The previous cube at subdivision level 1:</p>
+		<img class="img-responsive img-fluid center-block" src="images/task6-2.png" width="40%"/>
+		<br>	
+	
+		<p>The cube from another angle, at subdivision level 2:</p>
+		<img class="img-responsive img-fluid center-block" src="images/task6-3.png" width="40%"/>
+		<br>
+	
+		<a href ="https://cal-cs184-student.github.io/sp22-project-webpages-AdamRashid96/">https://cal-cs184-student.github.io/sp22-project-webpages-AdamRashid96/</a>
+</div>
+</div>
+
+</body>
 </html>
+
+
+
+
