@@ -1,7 +1,295 @@
-<html>
-	<head>
-	</head>
-	<body>
-		Project 4 here
-	</body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" crossorigin="anonymous">
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS"crossorigin="anonymous"></script>
+	<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML"></script>
+	<title>CS184 project 4</title>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+</head>
+
+<body>
+<div class="container">
+<br/>
+
+<h1 align="middle">Assignment 4</h1>
+<br>
+
+
+	<h2 align="middle">Overview</h2>
+		<p>
+			TODO
+		</p>
+    <br>
+
+	<h2 align="middle">Part 4: Handling self-collisions</h2>
+	    <p>
+	        For this part in the project we need to program self-collisions because otherwise our cloth just falls through itself. The naive solution would be for every single point mass, loop through every other point mass and check the distances between them, but this would take O(N^2) time per call to simulate, which would be too slow.
+	    </p>
+	    <p>
+			Instead we section the world into boxes and then store a list of point masses per box, similar to what we did for BVHs. To access each box as fast as possible we would store each point in a hash map with a unique key representing which box it belonged to, allowing us O(1) access to the list of points in a box. For this we implemented <code>Cloth::hash_position</code> that given a position would return the unique box id. We accomplished this by taking the floor of the division of the position's x value by the width of a box, and doing the same for the position's y value and the height, and the position's z value and the max of the box's height and width. These three points effectivly gave us the top left corner of which box the point lies in, to convert this into a unique id we just concatenated the x, y, and z values. 
+		</p>
+		<p>
+			Finally, we implemented <code>Cloth::self_collide</code> that given a point mass would check if it would collide with other points on the cloth and if so correct the position to avoid such collision. To implement this we would get the id of the box the point mass lies in and then check that its distance with every other point mass in the box was less than <code>2 * thickness</code>. If any points were too close we would sum a correction vector to move the point farther than <code>2 * thickness</code>. At the end we would average this correction vector and move the given point mass.
+	    </p>
+	    <p>
+	    	Once we had all these functions implemented, we populated the map of boxes to list of point masses at each step in the simulation, and checked for any self collisions with the points.
+	    </p>
+	    <br>
+
+	    <div align="center">
+   		<iframe width="500" height="400" src="https://www.youtube.com/embed/mUE-36dXaWs" title="YouTube video player" frameborder="0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+   		</div>
+
+		<div align="center">
+		    <table style="width=100%">
+		        <tr>
+		        <td align="middle">
+		            <img src="images/cloth_falling_1.png" align="middle" width="400px" />
+		        </td>
+
+		            <td align="middle">
+		            <img src="images/cloth_falling_2.png" align="middle" width="400px" />
+		        </td>
+		            <td align="middle">
+		            <img src="images/cloth_falling_3.png" align="middle" width="400px" />
+		        </td>
+		        </tr>
+		        <br>
+		        <tr>
+		        <td align="middle">
+		            <img src="images/cloth_falling_4.png" align="middle" width="400px" />
+		        </td>
+
+		            <td align="middle">
+		            <img src="images/cloth_falling_5.png" align="middle" width="400px" />
+		        </td>
+		            <td align="middle">
+		            <img src="images/cloth_falling_6.png" align="middle" width="400px" />
+		        </td>
+		        </tr>
+		        <br>
+		    </table>
+		</div>
+		<br>
+
+		<div align="center">
+		    <table style="width=100%">
+		    	<caption>Varying the density:</caption>
+		        <tr>
+		        <td align="middle">
+		            <iframe width="375" height="300" src="https://www.youtube.com/embed/C-PD6KufCSI" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		            <figcaption align="middle">Density = 1</figcaption>
+		        </td>
+
+
+	            <td align="middle">
+		            <iframe width="375" height="300" src="https://www.youtube.com/embed/EFfayZt9tfc" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		            <figcaption align="middle">Density = 30</figcaption>
+
+		        </td>
+	            <td align="middle">
+		            <iframe width="375" height="300" src="https://www.youtube.com/embed/42E5tu28Ozk" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		            <figcaption align="middle">Density = 500</figcaption>
+		        </td>
+		        </tr>
+		    </table>
+		</div>
+		<br>
+
+		<p>
+			When adjusting the density values we see that when the density is low, the cloth acts more paperlike with bigger folds over itself. When the density is high the cloth acts more silklike folding over itself with small folds. When the density gets to high, we see that the material starts to phase through the plane. This is probably caused by a large number of really tight folds so each point mass experiances really large repulsion forces that push it through the plane.
+		</p>
+		<br>
+
+		<div align="center">
+		    <table style="width=100%">
+		    	<caption>Varying the ks value:</caption>
+		        <tr>
+		        <td align="middle">
+		            <iframe width="375" height="300" src="https://www.youtube.com/embed/U87h5MSsZq0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		            <figcaption align="middle">ks = 2500</figcaption>
+		        </td>
+
+
+	            <td align="middle">
+		            <iframe width="375" height="300" src="https://www.youtube.com/embed/IqfQYRvg7YM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		            <figcaption align="middle">ks = 7500</figcaption>
+
+		        </td>
+	            <td align="middle">
+		            <iframe width="375" height="300" src="https://www.youtube.com/embed/7hrADtKO5Jc" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		            <figcaption align="middle">ks = 10000</figcaption>
+		        </td>
+		        </tr>
+		    </table>
+		</div>
+		<br>
+
+		<p>
+			We can see the lower Ks values show a much springier cloth material that bounces a lot before reaching its final rest position. This cloth bounces so much that it actually unfolds most of itself by the final position. While at higher ks values the cloth is stiffer and does not bounce as much. This also means that if it is unfolding itself it takes a longer time to reach its final rest position.
+		</p>
+		<br>
+
+	<h2 align="middle">Part 5: Shaders</h2>
+		<p>
+			For the final part, we implemented shaders using GLSL. Shaders are incredibly powerful because they run many computations in parallel on the GPU. They take in atributes, which are inputs into the program, like position, texture files or uv coordinates, and writes to varyings, which are like the outputs of the program, such as the color or displacement at the vector or pixel. In OpenGL there are two types of shaders, there are vertex shaders and fragment shaders. Vertex shaders apply transformations to the vertices, such as displacement. While, fragment shaders write to the attributes on the pixels, which are created after rasterization.
+		</p>
+
+		<p>In the Blinn-Phong shading model, we can combine ambient lighting, diffuse lighting, and specular highlights. Each of these components is represented by its term in the lighting calculation:</p>
+
+		<div align="center">
+			<p><math><b>L</b> = <b>k</b><sub>a</sub><b>I</b><sub>a</sub> + <b>k</b><sub>d</sub>(<b>I</b>/r<sup>2</sup>) max(0, <b>n</b> <span>&#183;</span> <b>l</b>) + <b>k</b><sub>s</sub>(<b>I</b>/r<sup>2</sup>) max(0, <b>n</b> <span>&#183;</span> <b>h</b>)<sup>p</sup></math></p>
+		</div>
+
+		<div align="middle">
+		  <table style="width=100%">
+		  	<caption>Blinn-Phong shading parts:</caption>
+		    <tr>
+		      <td>
+		        <img src="images/phong_ambient1.png" align="middle" width="400px"/>
+		        <figcaption align="middle">Ambient only; Ka = 0.1</figcaption>
+		      </td>
+		      <td>
+		        <img src="images/phong_ambient2.png" align="middle" width="400px"/>
+		        <figcaption align="middle">Ambient only; Ka = 0.1</figcaption>
+		      </td>
+		    </tr>
+		    <br>
+		    <tr>
+		      <td>
+		        <img src="images/phong_diffuse1.png" align="middle" width="400px"/>
+		        <figcaption align="middle">Diffuse only; Kd = u_color</figcaption>
+		      </td>
+		      <td>
+		        <img src="images/phong_diffuse2.png" align="middle" width="400px"/>
+		        <figcaption align="middle">Diffuse only; Kd = u_color</figcaption>
+		      </td>
+		    </tr>
+		    <br>
+		    <tr>
+		      <td>
+		        <img src="images/phong_specular1.png" align="middle" width="400px"/>
+		        <figcaption align="middle">Specular only; Ks = 0.5</figcaption>
+		      </td>
+		      <td>
+		        <img src="images/phong_specular2.png" align="middle" width="400px"/>
+		        <figcaption align="middle">Specular only; Ks = 0.5</figcaption>
+		      </td>
+		    </tr>
+		    <br>
+		    <tr>
+		      <td>
+		        <img src="images/phong1.png" align="middle" width="400px"/>
+		        <figcaption align="middle">Blinn-Phong</figcaption>
+		      </td>
+		      <td>
+		        <img src="images/phong2.png" align="middle" width="400px"/>
+		        <figcaption align="middle">Blinn-Phong</figcaption>
+		      </td>
+		    </tr>
+		    <br>
+		  </table>
+		</div>
+		<br>
+
+		<div align="middle">
+		  <table style="width=100%">
+		  	<caption>Texture Mapping Shader:</caption>
+		    <tr>
+		      <td>
+		        <img src="images/texture1.png" align="middle" width="400px"/>
+		      </td>
+		      <td>
+		        <img src="images/texture2.png" align="middle" width="400px"/>
+		      </td>
+		    </tr>
+		    <br>
+		  </table>
+		</div>
+		<br>
+
+		<div align="middle">
+		  <table style="width=100%">
+		  	<caption>Bump Shader and Displacement Shader:</caption>
+		    <tr>
+		      <td>
+		        <img src="images/bump_16_1.png" align="middle" width="400px"/>
+		        <figcaption align="middle">Bump, coarseness 16</figcaption>
+		      </td>
+		      <td>
+		        <img src="images/bump_16_2.png" align="middle" width="400px"/>
+		        <figcaption align="middle">Bump, coarseness 16</figcaption>
+		      </td>
+		    </tr>
+		    <br>
+		    <tr>
+		      <td>
+		        <img src="images/bump_128_1.png" align="middle" width="400px"/>
+		        <figcaption align="middle">Bump, coarseness 128</figcaption>
+		      </td>
+		      <td>
+		        <img src="images/bump_128_2.png" align="middle" width="400px"/>
+		        <figcaption align="middle">Bump, coarseness 128</figcaption>
+		      </td>
+		    </tr>
+		    <br>
+		    <tr>
+		      <td>
+		        <img src="images/phong_specular1.png" align="middle" width="400px"/>
+		        <figcaption align="middle">Specular only; Ks = 0.5</figcaption>
+		      </td>
+		      <td>
+		        <img src="images/phong_specular2.png" align="middle" width="400px"/>
+		        <figcaption align="middle">Specular only; Ks = 0.5</figcaption>
+		      </td>
+		    </tr>
+		    <br>
+		    <tr>
+		      <td>
+		        <img src="images/phong1.png" align="middle" width="400px"/>
+		        <figcaption align="middle">Blinn-Phong</figcaption>
+		      </td>
+		      <td>
+		        <img src="images/phong2.png" align="middle" width="400px"/>
+		        <figcaption align="middle">Blinn-Phong</figcaption>
+		      </td>
+		    </tr>
+		    <br>
+		  </table>
+		</div>
+		<br>
+
+		<p>Explain Courseness</p>
+
+		<div align="middle">
+		  <table style="width=100%">
+		  	<caption>Mirror Shader:</caption>
+		    <tr>
+		      <td>
+		        <img src="images/mirror1.png" align="middle" width="400px"/>
+		      </td>
+		      <td>
+		        <img src="images/mirror2.png" align="middle" width="400px"/>
+		      </td>
+		    </tr>
+		    <br>
+		  </table>
+		</div>
+		<br>
+
+
+    <br>
+
+	<a href ="https://cal-cs184-student.github.io/sp22-project-webpages-AdamRashid96/proj4/index.html">https://cal-cs184-student.github.io/sp22-project-webpages-AdamRashid96/proj4/index.html</a>
+</div>
+
+</body>
 </html>
+
+
+
+
