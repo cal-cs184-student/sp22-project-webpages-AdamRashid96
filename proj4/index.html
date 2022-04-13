@@ -21,9 +21,164 @@
 
 	<h2 align="middle">Overview</h2>
 		<p>
-			TODO
+			In this project, we implemented a cloth simulater using a mass and spring system. First we built the cloth by creating a grid of point_masses and adding three types of springs types between them. Next, We implemented the simulation step which consisted of accumulating all the external forces and spring forces and applying them to the springs positions. We added the ability to collide with a sphere, a plane, and the cloth itself. Finally, in the last part of this project, we implemented shaders using glsl. We implemented diffuse shading, Blinn-Phong shading, texture shading, bump shading, displacement shading, and mirror shading.
 		</p>
     <br>
+
+    <h2 align="middle">Part 1: Masses and Springs</h2>
+	    <p>
+			To build the masses and spring, we first set up the grid of masses.
+			We set up the plane space basis vectors based on the <code>orientation</code>.
+			Then we start generating the masses. We use the basic vectors to place the massed in a grid.
+			In the special vertical case, we apply the <code>forward</code> basis vector randomly to add the random offset.
+			After creating the massed, we iterate through the pinned indices and set the mass <code>pinned</code> value to true.
+			To add the springs, we iterate over all the messes we just created.
+			We first create a spring with the mass to the left, and then a spring with the mass above.
+			Similarly, we create springs with the mass two to the left and two above.
+			Finally, the diagonal springs are created.
+			For each direction, we do the correct pounds check before to make sure that there is a mass in that direction.
+	    </p>
+
+	    <br>
+
+	<div align="center">
+	    <table style="width=100%">
+	        <tr>
+	        <td align="middle">
+	            <img src="images/P1_ALL.png" align="middle" width="400px" />
+	            <figcaption align="middle">The wireframe will all constraints displayed</figcaption>
+	        </td>
+			<td align="middle">
+	            <img src="images/P1_No_Shearing.png" align="middle" width="400px" />
+	            <figcaption align="middle">The wireframe with shearing constraints disabled</figcaption>
+	        </td>
+			</tr>
+			<tr>
+			<td align="middle">
+	            <img src="images/P1_Only_Shearing.png" align="middle" width="400px" />
+	            <figcaption align="middle">The wireframe with only shearing constraints enabled</figcaption>
+	        </td>
+	        </tr>
+	        <br>
+	    </table>
+	</div>
+
+	<h2 align="middle">Part 2: Simulation via numerical integration</h2>
+
+	    <p>
+			First, we sum all the <code>external_accelerations</code> and multiply by the mass to get the <code>external_force</code>.
+			The forces for every mass is initialized to this force.
+			Next we calculate the spring force by iterating through every enabled spring.
+			We calculate the stretch distance and multiply by the correct <code>ks</code> value to get the force.
+			For the mass on each end of the spring, we apply this force in the direction toward the spring center.
+	    </p>
+
+		<p>
+			To perform time integration, we iterate over all point masses and save the <code>position</code> and <code>last_position</code> value in local variables.
+			Then, using the formula from the assignment, we calculate the next position of each point mass.
+			Finally, the <code>last_position</code> value is set to the previous <code>position</code> value.
+		</p>
+
+		<p>
+			We implement the deformation constraints by again iterating through all enabled springs.
+			The spring distance is calculated and check if it is greater than 1.1 times <code>rest_length</code>.
+			If it is, we move the springs closer together such that the spring distance is exactly 1.1 times <code>rest_length</code>.
+			We handle the cases were neither passed are pinned and the case that only one mass is pinned.
+		</p>
+
+		<p>
+			When we lower the value of <code>ks</code>, we see that the cloth simulation get more jiggly and less stable.
+			Specifically the part of the close with less tension get very shaky and unstable.
+			As we raise the value, the cloth gets stiffer and more stable.
+			Finally, with a value too high, the cloth gets very unstable and bunches up in a shaky mess.
+		</p>
+
+		<p>
+			With the density, when we change make the value smaller the cloth gets somewhere stiff and has few folds develop.
+			The movement of the cloth is very stable like this however, it converges fast and doesn't exhibit any shaky movement.
+			When we increase the density, the cloth gets very stretchy as if moves.
+			The movement gets less stable and more jiggly.
+			When the density becomes very small, the cloth gets unstable and bunches up.
+			This is all inverse to how the simulation changes when we change <code>ks</code>.
+			This makes sense, since the density and <code>ks</code> value act inversely in the finaly movement calculation.
+		</p>
+
+		<p>
+			With a low damping value, the cloth swings and moves a lot.
+			We can see a lot of wrinkles form and disappear and "waves" that move throughout the fabric.
+			When the damping value is increase, the cloth moves much slower and has no oscillatory movement.
+			At the maximum value, the cloth slowly moves into position and doesn't oscillate at all.
+		</p>
+
+	    <div align="center">
+	        <table style="width=100%">
+	        	<br>
+	            <tr>
+	                <td align="middle">
+	                <img src="images/P2-1.png" align="middle" width="400px"/>
+	                <figcaption align="middle">pinned4.json in its final resting position</figcaption>
+
+	                <td align="middle">
+	                <img src="images/P2-2.png" align="middle" width="400px"/>
+	                <figcaption align="middle">pinned4.json in its final resting position</figcaption>
+	            </tr>
+	            <br>
+	        </table>
+	    </div>
+	    <br>
+
+	<h2 align="middle">Part 3: Handling collisions with spheres</h2>
+
+
+	    <h3>Sphere Collision</h3>
+	    <p>
+	        Handling sphere collision is fairly straightforward.
+			First we check if the point is inside the sphere by simply checking if its distance from the sphere origin is less than the radius.
+			If it is, we calculate the tagent position by extending a vector from the sphere origin, passing through the point position, and to the sphere surface.
+			The correction is just the difference between the tangent position and the <code>last_position</code>.
+			This correction is applied accounting for the <code>(1 - friction)</code> coefficient.
+	    </p>
+
+		<h3>Plane Collision</h3>
+		<p>
+			To handle plane collision, we act as if we cast a ray from <code>last_position</code> to <code>position</code>.
+			We calculate this the <code>t</code> value using the formula given in the ray casting lectures.
+			If the collision point is between the two position values, then a collision occurred.
+			The tangent point is just the collision point from the ray cast.
+			The correction is once again the difference between the tangent position and the <code>last_position</code>.
+			However, this time we add <code>sign * SURFACE_OFFSET * normal</code> to the correction, where <code>sign</code> is the sign of <code>dot(pm.last_position - point, normal)</code>.
+			The correction is applied the same way as before.
+		</p>
+
+	    <div align="center">
+	        <table style="width=100%">
+	            <tr>
+	                <td align="middle">
+	                <img src="images/P3_500.png" align="middle" width="400px"/>
+	                <figcaption align="middle">The sphere resting position with <code>ks = 500</code></figcaption>
+
+	                <td align="middle">
+	                <img src="images/P3_5000.png" align="middle" width="400px"/>
+	                <figcaption align="middle">The sphere resting position with <code>ks = 5000</code></figcaption>
+	            </tr>
+	            <br>
+	            <tr>
+	                <td align="middle">
+	                <img src="images/P3_50000.png" align="middle" width="400px"/>
+	                <figcaption align="middle">The sphere resting position with <code>ks = 50000</code></figcaption>
+	            </tr>
+	        </table>
+	    </div>
+	    <br>
+
+	    <p>
+			We see from these images that with low values of <code>ks</code> the cloth is more flexible and behaving almost like silky fabric.
+			The cloth conforms to the shape of the sphere more and ends sag down lower.
+			The folds are sharper and denser.
+			As the value is increased, there are less folds.
+			At <code>ks = 50000</code> we see that the cloth appears stiff near the edges and doesn't hang nearly as much as the other two.
+	    </p>
+	<br>
 
 	<h2 align="middle">Part 4: Handling self-collisions</h2>
 	    <p>
@@ -239,23 +394,23 @@
 		    <br>
 		    <tr>
 		      <td>
-		        <img src="images/phong_specular1.png" align="middle" width="400px"/>
-		        <figcaption align="middle">Specular only; Ks = 0.5</figcaption>
+		        <img src="images/disp_16_1.png" align="middle" width="400px"/>
+		        <figcaption align="middle">Displacement, coarseness 16</figcaption>
 		      </td>
 		      <td>
-		        <img src="images/phong_specular2.png" align="middle" width="400px"/>
-		        <figcaption align="middle">Specular only; Ks = 0.5</figcaption>
+		        <img src="images/disp_16_2.png" align="middle" width="400px"/>
+		        <figcaption align="middle">Displacement, coarseness 16</figcaption>
 		      </td>
 		    </tr>
 		    <br>
 		    <tr>
 		      <td>
-		        <img src="images/phong1.png" align="middle" width="400px"/>
-		        <figcaption align="middle">Blinn-Phong</figcaption>
+		        <img src="images/disp_16_1.png" align="middle" width="400px"/>
+		        <figcaption align="middle">Displacement, coarseness 128</figcaption>
 		      </td>
 		      <td>
-		        <img src="images/phong2.png" align="middle" width="400px"/>
-		        <figcaption align="middle">Blinn-Phong</figcaption>
+		        <img src="images/disp_16_2.png" align="middle" width="400px"/>
+		        <figcaption align="middle">Displacement, coarseness 128</figcaption>
 		      </td>
 		    </tr>
 		    <br>
@@ -263,7 +418,7 @@
 		</div>
 		<br>
 
-		<p>Explain Courseness</p>
+		<p>We can see that at a coarseness of 16 the difference between bump and displacement shading is not as pronounced as when we up the courseness to 128, where we can see a greater difference between bump and displacement shading, which makes sense as the courser the texture is, the more displacement we expect from the shader.</p>
 
 		<div align="middle">
 		  <table style="width=100%">
